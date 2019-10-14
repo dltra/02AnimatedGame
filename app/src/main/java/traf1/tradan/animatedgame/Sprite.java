@@ -24,7 +24,13 @@ class Sprite extends RectF {
         this.dY = dY;
         this.color = color;
     }
-    public void update(){
+    public void update(Canvas canvas){
+        if(left+dX<0||right+dX>canvas.getWidth())//if next step hits boundary
+            dX*=-1; //bounce off left and right boundaries
+        if(top+dY>canvas.getHeight())//if next step puts off bottom of screen
+            offsetTo(left,-height());//teleport to top of screen
+        if(bottom+dY<0)
+            offsetTo(left,canvas.getHeight());
         offset(dX,dY);//moves dX to the right and dY downwards
     }
     public void draw(Canvas canvas){
@@ -55,5 +61,10 @@ class Sprite extends RectF {
 
     public void setColor(int color) {
         this.color = color;
+    }
+
+    public void grow(int i) {
+        right=right+i;
+        bottom=bottom+i;
     }
 }
