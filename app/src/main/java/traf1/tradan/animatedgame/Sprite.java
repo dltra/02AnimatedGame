@@ -36,7 +36,7 @@ class Sprite extends RectF {
     public void draw(Canvas canvas){
         Paint paint = new Paint();
         paint.setColor(color);//sets its color
-        canvas.drawCircle(centerX(),centerY(), width()/2, paint);//draws circle
+        canvas.drawCircle(centerX(), centerY(), width() / 2, paint);//draws circle
     }
 
     public int getdX() {
