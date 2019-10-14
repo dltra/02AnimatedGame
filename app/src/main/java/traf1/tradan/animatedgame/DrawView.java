@@ -1,6 +1,7 @@
 package traf1.tradan.animatedgame;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -27,6 +28,7 @@ public class DrawView extends View {
         badSprite = generateSprite();
         badSprite.setColor(Color.GREEN);
         sprite.grow(100);
+        sprite.setBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.bluejeans));
     }
 
     @Override
@@ -47,6 +49,11 @@ public class DrawView extends View {
             badSprite=generateSprite();
             badSprite.setColor(Color.GREEN);
             sprite.grow(-5);
+        }
+        if(RectF.intersects(foodSprite, badSprite)){
+            foodSprite.grow((int)(-foodSprite.width()*.1));//shrink food
+            badSprite=generateSprite();//recreate badSprite
+            badSprite.setColor(Color.GREEN);
         }
         //sprite draws itself
         sprite.draw(canvas);
