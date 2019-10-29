@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 
 public class MainActivity extends AppCompatActivity {
@@ -12,8 +14,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Set fullscreen
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //Set No Title
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         drawView=findViewById(R.id.drawView);
+        /**
+         * Option way of getting fullscreen and no title
+         * //Set fullscreen
+         * this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+         *        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+         *
+         * //Set No Title
+         * this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+         **/
     }
 
     public void moveLeft(View view) {
