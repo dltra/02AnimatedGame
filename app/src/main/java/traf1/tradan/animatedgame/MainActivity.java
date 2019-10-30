@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void moveLeft(View view) {
         drawView.sprite.setdX(-3);//set horizontal speed to move left
+        drawView.pause(); //pause when left button is clicked
     }
 
     public void moveRight(View view) {
