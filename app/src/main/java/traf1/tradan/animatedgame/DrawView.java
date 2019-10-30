@@ -7,6 +7,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -26,6 +30,11 @@ public class DrawView extends SurfaceView {
     Canvas canvas;
     boolean isRunning=true;
     int frames=0;
+    private static final int MAX_STREAMS=100;
+    private int soundIdExplosion;
+    private int soundIdBackground;
+    private boolean soundPoolLoaded;
+    private SoundPool soundPool;
     public DrawView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         surface=getHolder();
@@ -66,6 +75,7 @@ public class DrawView extends SurfaceView {
         }).start();
         sprite.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bluejeans));
         sprite.grow(100);
+        initSoundPool();//pre-load sounds
     }
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -103,11 +113,13 @@ public class DrawView extends SurfaceView {
         if(RectF.intersects(sprite, foodSprite)){
             //on collision generate an explosion and add itself to list
             new Explosion(foodSprite,explosions,explosionBMP);
+            playSoundExplosion();
             foodSprite=generateSprite();
             sprite.grow(10);
         }
         if(RectF.intersects(sprite, badSprite)){
             new Explosion(badSprite,explosions,explosionBMP);
+            playSoundExplosion();
             badSprite=generateSprite();
             badSprite.setColor(Color.GREEN);
             sprite.grow(-5);
@@ -139,5 +151,51 @@ public class DrawView extends SurfaceView {
 
     public void pause() {//pause-resume
         isRunning=!isRunning;
+    }
+    private void initSoundPool()  {
+        // With Android API >= 21.
+        if (Build.VERSION.SDK_INT >= 21 ) {
+            AudioAttributes audioAttrib = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            SoundPool.Builder builder= new SoundPool.Builder();
+            builder.setAudioAttributes(audioAttrib).setMaxStreams(MAX_STREAMS);
+            this.soundPool = builder.build();
+        }
+        // With Android API < 21
+        else {
+            // SoundPool(int maxStreams, int streamType, int srcQuality)
+            this.soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+        }
+        // When SoundPool load complete.
+        this.soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                soundPoolLoaded = true;
+                // Playing background sound.
+                playSoundBackground();
+            }
+        });
+        // Load the sound background.mp3 into SoundPool
+        soundIdBackground= soundPool.load(this.getContext(), R.raw.background,1);
+        // Load the sound explosion.wav into SoundPool
+        soundIdExplosion = soundPool.load(this.getContext(), R.raw.explosion,1);
+    }
+    public void playSoundExplosion()  {
+        if(soundPoolLoaded) {
+            float leftVolumn = 0.8f;
+            float rightVolumn =  0.8f;
+            // Play sound explosion.wav
+            int streamId = this.soundPool.play(this.soundIdExplosion,leftVolumn, rightVolumn, 1, 0, 1f);
+        }
+    }
+    public void playSoundBackground()  {
+        if(soundPoolLoaded) {
+            float leftVolumn = 0.8f;
+            float rightVolumn =  0.8f;
+            // Play sound background.mp3
+            int streamId = this.soundPool.play(this.soundIdBackground,leftVolumn, rightVolumn, 1, -1, 1f);
+        }
     }
 }
